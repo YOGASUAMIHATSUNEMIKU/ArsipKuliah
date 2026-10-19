@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArsipKuliah</title>
+  <style>
+    /* ===== RESET & VARIABEL ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --hijau:       #1a6641;
+      --hijau-muda:  #2d8a58;
+      --hijau-pucat: #e8f5ee;
+      --putih:       #ffffff;
+      --abu-terang:  #f4f6f5;
+      --abu-border:  #d0d9d4;
+      --teks-utama:  #1a2b22;
+      --teks-muted:  #5a7365;
+      --merah:       #c0392b;
+      --kuning:      #d4a017;
+      --biru:        #2563eb;
+      --radius:      10px;
+      --shadow:      0 2px 8px rgba(0,0,0,0.10);
+      --nav-h:       62px;
+    }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: var(--abu-terang);
+      color: var(--teks-utama);
+      font-size: 15px;
+      line-height: 1.55;
+      padding-bottom: calc(var(--nav-h) + 12px);
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      background: var(--hijau);
+      color: var(--putih);
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .app-header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: .3px; }
+    .app-header span { font-size: .8rem; opacity: .8; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: var(--putih);
+      border-top: 1px solid var(--abu-border);
+      display: flex;
+      z-index: 200;
+      box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--teks-muted);
+      font-size: .68rem;
+      font-weight: 500;
+      padding: 6px 2px;
+      transition: color .15s;
+    }
+    .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; fill: none; stroke: currentColor; }
+    .nav-btn.aktif { color: var(--hijau); }
+    .nav-btn.aktif svg { stroke: var(--hijau); }
+
+    /* ===== HALAMAN ===== */
+    .halaman { display: none; padding: 16px; max-width: 640px; margin: 0 auto; }
+    .halaman.aktif { display: block; }
+
+    /* ===== KARTU ===== */
+    .kartu {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    /* ===== TOMBOL ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-size: .875rem;
+      font-weight: 600;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primer  { background: var(--hijau); color: var(--putih); }
+    .btn-sekund  { background: var(--abu-terang); color: var(--teks-utama); border: 1px solid var(--abu-border); }
+    .btn-bahaya  { background: var(--merah); color: var(--putih); }
+    .btn-kecil   { padding: 5px 11px; font-size: .78rem; }
+    .btn-blok    { width: 100%; justify-content: center; padding: 12px; font-size: 1rem; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ===== FORM ===== */
+    .form-grup { margin-bottom: 14px; }
+    label { display: block; font-size: .82rem; font-weight: 600; margin-bottom: 5px; color: var(--teks-muted); }
+    input[type=text], input[type=number], input[type=date], input[type=url],
+    select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--abu-border);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-family: inherit;
+      background: var(--putih);
+      color: var(--teks-utama);
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--hijau-muda);
+    }
+    .err-msg { color: var(--merah); font-size: .78rem; margin-top: 4px; display: none; }
+    .err-msg.tampil { display: block; }
+    .saran-nama {
+      background: var(--hijau-pucat);
+      border: 1px dashed var(--hijau-muda);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: .85rem;
+      display: none;
+    }
+    .saran-nama.tampil { display: block; }
+    .saran-nama strong { display: block; font-family: monospace; font-size: .95rem; color: var(--hijau); margin: 4px 0 8px; }
+    .peringatan-link {
+      background: #fff8e1;
+      border: 1px solid #f9c74f;
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font-size: .82rem;
+      color: #7a5900;
+      margin-top: 6px;
+      display: none;
+    }
+    .peringatan-link.tampil { display: block; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      display: none;
+    }
+    .modal-overlay.tampil { display: flex; }
+    .modal-kotak {
+      background: var(--putih);
+      border-radius: 14px;
+      padding: 22px 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+    }
+    .modal-kotak h3 { margin-bottom: 10px; font-size: 1rem; }
+    .modal-kotak p  { font-size: .88rem; color: var(--teks-muted); margin-bottom: 16px; }
+    .modal-aksi { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .7rem;
+      font-weight: 700;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .badge-merah  { background: #fde8e8; color: var(--merah); }
+    .badge-kuning { background: #fff3cd; color: #7a5900; }
+    .badge-abu    { background: var(--abu-border); color: var(--teks-muted); }
+    .badge-hijau  { background: var(--hijau-pucat); color: var(--hijau); }
+    .badge-biru   { background: #dbeafe; color: var(--biru); }
+
+    /* ===== RINGKASAN BERANDA ===== */
+    .ringkasan-baris {
+      display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .ringkasan-kotak {
+      flex: 1; min-width: 120px;
+      background: var(--putih);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .ringkasan-kotak .angka { font-size: 1.8rem; font-weight: 700; color: var(--hijau); line-height: 1.1; }
+    .ringkasan-kotak .label { font-size: .72rem; color: var(--teks-muted); margin-top: 3px; }
+
+    /* ===== KARTU MK ===== */
+    .kartu-mk {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: box-shadow .15s;
+    }
+    .kartu-mk:hover { box-shadow: 0 4px 16px rgba(0,0,0,.14); }
+    .kartu-mk .mk-nama { font-weight: 700; font-size: .95rem; }
+    .kartu-mk .mk-info { font-size: .78rem; color: var(--teks-muted); margin-top: 2px; }
+    .kartu-mk .mk-chevron { color: var(--abu-border); }
+
+    /* ===== KARTU FILE ===== */
+    .kartu-file {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .kartu-file-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .kartu-file-judul  { font-weight: 700; font-size: .95rem; flex: 1; }
+    .kartu-file-meta   { font-size: .78rem; color: var(--teks-muted); margin-top: 5px; }
+    .kartu-file-aksi   { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+    .kartu-file .tag   { font-size: .72rem; color: var(--hijau); background: var(--hijau-pucat); padding: 2px 8px; border-radius: 20px; display: inline-block; margin: 2px 2px 0 0; }
+
+    /* ===== DETAIL MK ===== */
+    .pertemuan-grup { margin-bottom: 18px; }
+    .pertemuan-label {
+      font-size: .78rem; font-weight: 700; color: var(--teks-muted);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 7px; padding-left: 2px;
+    }
+
+    /* ===== REKAP / GRAFIK ===== */
+    .grafik-baris {
+      display: flex;
+      align-items: center;
+      margin-bottom: 9px;
+      gap: 10px;
+    }
+    .grafik-label { width: 110px; font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .grafik-bar-bg {
+      flex: 1;
+      background: var(--abu-terang);
+      border-radius: 6px;
+      height: 14px;
+      overflow: hidden;
+    }
+    .grafik-bar-isi {
+      height: 100%;
+      background: var(--hijau);
+      border-radius: 6px;
+      transition: width .4s;
+    }
+    .grafik-angka { width: 28px; text-align: right; font-size: .78rem; font-weight: 700; color: var(--hijau); }
+
+    /* ===== STATUS TUGAS ===== */
+    .status-select { font-size: .78rem; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--abu-border); background: var(--putih); }
+
+    /* ===== BACK BUTTON ===== */
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--hijau); background: none; border: none;
+      cursor: pointer; font-size: .88rem; font-weight: 600;
+      padding: 0; margin-bottom: 14px;
+    }
+    .btn-back svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+    /* ===== CARI ===== */
+    .cari-kotak {
+      display: flex; gap: 8px; align-items: center; margin-bottom: 12px;
+    }
+    .cari-kotak input { flex: 1; }
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+
+    /* ===== KOSONG ===== */
+    .kosong-state {
+      text-align: center; padding: 36px 20px;
+      color: var(--teks-muted); font-size: .9rem;
+    }
+    .kosong-state .ikon { font-size: 2.8rem; margin-bottom: 10px; }
+    .kosong-state h3 { color: var(--teks-utama); margin-bottom: 6px; }
+
+    /* ===== UTILITY ===== */
+    .divider { border: none; border-top: 1px solid var(--abu-border); margin: 14px 0; }
+    .teks-kecil { font-size: .78rem; color: var(--teks-muted); }
+    .mt8 { margin-top: 8px; }
+    .mt12 { margin-top: 12px; }
+    .mb8 { margin-bottom: 8px; }
+    .flex-gap { display: flex; gap: 8px; flex-wrap: wrap; }
+    h2.judul-halaman { font-size: 1.1rem; margin-bottom: 14px; color: var(--teks-utama); }
+    .seksi-judul { font-size: .82rem; font-weight: 700; color: var(--teks-muted); text-transform: uppercase; letter-spacing: .5px; margin: 16px 0 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <h1>📂 ArsipKuliah</h1>
+  <span id="versi-tgl"></span>
+</header>
+
+<!-- ===== HALAMAN 1: BERANDA ===== -->
+<section class="halaman aktif" id="hal-beranda">
+  <div id="isi-beranda"></div>
+</section>
+
+<!-- ===== HALAMAN 2: TAMBAH / EDIT FILE ===== -->
+<section class="halaman" id="hal-tambah">
+  <button class="btn-back" id="btn-kembali-tambah">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+  </button>
+  <h2 class="judul-halaman" id="judul-form-tambah">Tambah File</h2>
+
+  <!-- Form Tambah/Edit -->
+  <div class="kartu">
+    <!-- Judul -->
+    <div class="form-grup">
+      <label for="f-judul">Judul File <span style="color:var(--merah)">*</span></label>
+      <input type="text" id="f-judul" placeholder="Contoh: Laporan Praktikum 3" />
+      <div class="err-msg" id="err-judul">Judul wajib diisi.</div>
+    </div>
+    <!-- Mata Kuliah -->
+    <div class="form-grup">
+      <label for="f-mk">Mata Kuliah <span style="color:var(--merah)">*</span></label>
+      <select id="f-mk">
+        <option value="">-- Pilih Mata Kuliah --</option>
+      </select>
+      <div class="err-msg" id="err-mk">Mata kuliah wajib dipilih.</div>
+    </div>
+    <!-- Jenis -->
+    <div class="form-grup">
+      <label for="f-jenis">Jenis <span style="color:var(--merah)">*</span></label>
+      <select id="f-jenis">
+        <option value="">-- Pilih Jenis --</option>
+        <option value="Tugas">Tugas</option>
+        <option value="Catatan">Catatan</option>
+        <option value="Slide">Slide</option>
+      </select>
+      <div class="err-msg" id="err-jenis">Jenis wajib dipilih.</div>
+    </div>
+    <!-- Pertemuan -->
+    <div class="form-grup">
+      <label for="f-pertemuan">Pertemuan ke- <span style="color:var(--merah)">*</span></label>
+      <input type="number" id="f-pertemuan" min="1" max="16" placeholder="1 – 16" />
+      <div class="err-msg" id="err-pertemuan">Pertemuan wajib diisi (1–16).</div>
+    </div>
+    <!-- Tanggal -->
+    <div class="form-grup">
+      <label for="f-tanggal">Tanggal</label>
+      <input type="date" id="f-tanggal" />
+    </div>
+    <!-- Deadline (hanya Tugas) -->
+    <div class="form-grup" id="grup-deadline" style="display:none">
+      <label for="f-deadline">Deadline</label>
+      <input type="date" id="f-deadline" />
+    </div>
+    <!-- Status (hanya Tugas) -->
+    <div class="form-grup" id="grup-status" style="display:none">
+      <label for="f-status">Status Tugas</label>
+      <select id="f-status">
+        <option value="Belum dikerjakan">Belum dikerjakan</option>
+        <option value="Dikerjakan">Dikerjakan</option>
+        <option value="Terkumpul">Terkumpul</option>
+      </select>
+    </div>
+    <!-- Tag -->
+    <div class="form-grup">
+      <label for="f-tag">Tag <span class="teks-kecil">(pisah koma)</span></label>
+      <input type="text" id="f-tag" placeholder="praktikum, laporan, uts" />
+    </div>
+    <!-- Link -->
+    <div class="form-grup">
+      <label for="f-link">Link / Lokasi File</label>
+      <input type="text" id="f-link" placeholder="https://... atau Laptop > Dokumen > Kuliah" />
+      <div class="peringatan-link" id="warning-link">
+        ⚠️ Link tidak diawali http:// atau https://. Ini akan disimpan sebagai lokasi manual.
+      </div>
+    </div>
+
+    <!-- Saran Nama Otomatis -->
+    <div class="saran-nama" id="kotak-saran">
+      <span>💡 Saran nama file:</span>
+      <strong id="teks-saran-nama"></strong>
+      <button class="btn btn-sekund btn-kecil" id="btn-salin-nama">📋 Salin nama</button>
+    </div>
+
+    <!-- Tombol simpan -->
+    <button class="btn btn-primer btn-blok mt8" id="btn-simpan-file">Simpan File</button>
+  </div>
+</section>
+
+<!-- ===== HALAMAN 3: CARI & FILTER ===== -->
+<section class="halaman" id="hal-cari">
+  <h2 class="judul-halaman">Cari & Filter</h2>
+  <div class="cari-kotak">
+    <input type="text" id="inp-cari" placeholder="Cari judul, tag, mata kuliah…" />
+    <button class="btn btn-sekund btn-kecil" id="btn-reset-filter">Reset</button>
+  </div>
+  <div class="filter-grid">
+    <select id="fil-mk"><option value="">Semua MK</option></select>
+    <select id="fil-jenis">
+      <option value="">Semua Jenis</option>
+      <option value="Tugas">Tugas</option>
+      <option value="Catatan">Catatan</option>
+      <option value="Slide">Slide</option>
+    </select>
+    <select id="fil-pertemuan"><option value="">Semua Pertemuan</option></select>
+    <select id="fil-status">
+      <option value="">Semua Status</option>
+      <option value="Belum dikerjakan">Belum dikerjakan</option>
+      <option value="Dikerjakan">Dikerjakan</option>
+      <option value="Terkumpul">Terkumpul</option>
+    </select>
+  </div>
+  <div id="hasil-cari"></div>
+</section>
+
+<!-- ===== HALAMAN 4: DETAIL MATA KULIAH ===== -->
+<section class="halaman" id="hal-detail-mk">
+  <button class="btn-back" id="btn-kembali-mk">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Beranda
+  </button>
+  <h2 class="judul-halaman" id="judul-detail-mk">Detail Mata Kuliah</h2>
+  <div id="isi-detail-mk"></div>
+</section>
+
+<!-- ===== HALAMAN 5: STATUS TUGAS ===== -->
+<section class="halaman" id="hal-tugas">
+  <h2 class="judul-halaman">Status Tugas</h2>
+  <div id="isi-tugas"></div>
+</section>
+
+<!-- ===== HALAMAN 6: REKAP ===== -->
+<section class="halaman" id="hal-rekap">
+  <h2 class="judul-halaman">Rekap</h2>
+  <div id="isi-rekap"></div>
+</section>
+
+<!-- ===== HALAMAN 7: DATA ===== -->
+<section class="halaman" id="hal-data">
+  <h2 class="judul-halaman">Kelola Data</h2>
+  <div class="kartu">
+    <div class="seksi-judul">Ekspor</div>
+    <div class="flex-gap">
+      <button class="btn btn-sekund" id="btn-ekspor-json">⬇ Ekspor JSON</button>
+      <button class="btn btn-sekund" id="btn-ekspor-csv">⬇ Ekspor CSV</button>
+    </div>
+    <hr class="divider">
+    <div class="seksi-judul">Impor</div>
+    <p class="teks-kecil mb8">Pilih file JSON yang sebelumnya diekspor dari ArsipKuliah.</p>
+    <input type="file" id="inp-impor" accept=".json" style="display:none" />
+    <button class="btn btn-sekund" id="btn-impor-json">⬆ Impor JSON</button>
+    <hr class="divider">
+    <div class="seksi-judul">Contoh & Reset</div>
+    <div class="flex-gap">
+      <button class="btn btn-sekund" id="btn-isi-contoh">🎓 Isi data contoh</button>
+      <button class="btn btn-bahaya" id="btn-hapus-semua">🗑 Hapus semua data</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BOTTOM NAVIGATION ===== -->
+<nav class="bottom-nav">
+  <button class="nav-btn aktif" data-hal="beranda">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H14v-5h-4v5H4a1 1 0 01-1-1V9.5z"/></svg>
+    Beranda
+  </button>
+  <button class="nav-btn" data-hal="cari">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    Cari
+  </button>
+  <button class="nav-btn" data-hal="tugas">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Tugas
+  </button>
+  <button class="nav-btn" data-hal="rekap">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Rekap
+  </button>
+  <button class="nav-btn" data-hal="data">
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+    Data
+  </button>
+</nav>
+
+<!-- ===== MODAL: TAMBAH MATA KULIAH ===== -->
+<div class="modal-overlay" id="modal-tambah-mk">
+  <div class="modal-kotak">
+    <h3>Tambah Mata Kuliah Baru</h3>
+    <div class="form-grup">
+      <label for="inp-nama-mk">Nama Mata Kuliah</label>
+      <input type="text" id="inp-nama-mk" placeholder="Contoh: Pemrograman Berorientasi Objek" />
+      <div class="err-msg" id="err-tambah-mk">Nama mata kuliah tidak boleh kosong.</div>
+    </div>
+    <div class="modal-aksi">
+      <button class="btn btn-sekund" id="btn-batal-mk">Batal</button>
+      <button class="btn btn-primer" id="btn-konfirm-mk">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: KONFIRMASI GANDA ===== -->
+<div class="modal-overlay" id="modal-konfirm">
+  <div class="modal-kotak">
+    <h3 id="modal-konfirm-judul">Konfirmasi</h3>
+    <p id="modal-konfirm-pesan">Apakah Anda yakin?</p>
+    <div class="modal-aksi">
+      <button class="btn btn-sekund" id="btn-modal-batal">Batal</button>
+      <button class="btn btn-bahaya" id="btn-modal-ok">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: HAPUS MK ===== -->
+<div class="modal-overlay" id="modal-hapus-mk">
+  <div class="modal-kotak">
+    <h3>Hapus Mata Kuliah</h3>
+    <p id="pesan-hapus-mk">Apakah Anda yakin ingin menghapus mata kuliah ini?</p>
+    <div class="modal-aksi">
+      <button class="btn btn-sekund" id="btn-batal-hapus-mk">Batal</button>
+      <button class="btn btn-bahaya" id="btn-konfirm-hapus-mk">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// UTILITAS DASAR
+// ============================================================
+
+/** Escape karakter HTML untuk mencegah XSS */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Generate ID unik sederhana */
+function buatId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/** Format tanggal YYYY-MM-DD ke DD/MM/YYYY untuk tampilan */
+function fmtTgl(str) {
+  if (!str) return '-';
+  const [y, m, d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/** Tanggal hari ini dalam format YYYY-MM-DD */
+function hariIni() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ============================================================
+// LAPISAN DATA — localStorage dengan try/catch
+// ============================================================
+
+/** Baca data dari localStorage */
+function bacaLS(kunci, def) {
+  try {
+    const raw = localStorage.getItem(kunci);
+    return raw ? JSON.parse(raw) : def;
+  } catch (e) {
+    console.warn('Gagal membaca localStorage:', e);
+    return def;
+  }
+}
+
+/** Simpan data ke localStorage */
+function simpanLS(kunci, data) {
+  try {
+    localStorage.setItem(kunci, JSON.stringify(data));
+  } catch (e) {
+    alert('Gagal menyimpan data: storage penuh atau diblokir.');
+  }
+}
+
+// Kunci localStorage
+const KUNCI_FILE = 'arsipkuliah_file';
+const KUNCI_MK   = 'arsipkuliah_mk';
+
+/** Ambil semua file */
+function ambilFile() { return bacaLS(KUNCI_FILE, []); }
+/** Simpan semua file */
+function simpanFile(arr) { simpanLS(KUNCI_FILE, arr); }
+
+/** Ambil daftar mata kuliah */
+function ambilMK() { return bacaLS(KUNCI_MK, []); }
+/** Simpan daftar mata kuliah */
+function simpanMK(arr) { simpanLS(KUNCI_MK, arr); }
+
+// ============================================================
+// NAVIGASI HALAMAN
+// ============================================================
+
+let halamanAktif = 'beranda';
+let mkDetailAktif = null; // nama MK yang sedang dilihat di detail
+
+/** Tampilkan halaman berdasarkan id singkat */
+function tampilHalaman(nama) {
+  document.querySelectorAll('.halaman').forEach(h => h.classList.remove('aktif'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('aktif'));
+
+  const el = document.getElementById('hal-' + nama);
+  if (el) el.classList.add('aktif');
+
+  const navEl = document.querySelector(`.nav-btn[data-hal="${nama}"]`);
+  if (navEl) navEl.classList.add('aktif');
+
+  halamanAktif = nama;
+
+  // Render isi halaman saat dibuka
+  if (nama === 'beranda')   renderBeranda();
+  if (nama === 'cari')      renderCari();
+  if (nama === 'tugas')     renderTugas();
+  if (nama === 'rekap')     renderRekap();
+  if (nama === 'data')      {}
+}
+
+// Pasang event bottom nav
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => tampilHalaman(btn.dataset.hal));
+});
+
+// ============================================================
+// BERANDA
+// ============================================================
+
+function renderBeranda() {
+  const file = ambilFile();
+  const mks  = ambilMK();
+  const el   = document.getElementById('isi-beranda');
+
+  // Hitung tugas deadline ≤ 3 hari
+  const sekarang = new Date();
+  const batas3  = new Date(sekarang.getTime() + 3 * 86400000);
+  const segeraDeadline = file.filter(f =>
+    f.jenis === 'Tugas' &&
+    f.deadline &&
+    f.status !== 'Terkumpul' &&
+    new Date(f.deadline) <= batas3 &&
+    new Date(f.deadline) >= sekarang
+  );
+
+  let html = '';
+
+  // Ringkasan angka
+  html += `<div class="ringkasan-baris">
+    <div class="ringkasan-kotak">
+      <div class="angka">${file.length}</div>
+      <div class="label">Total File</div>
+    </div>
+    <div class="ringkasan-kotak">
+      <div class="angka" style="color:${segeraDeadline.length > 0 ? 'var(--kuning)' : 'var(--hijau)'}">${segeraDeadline.length}</div>
+      <div class="label">Tugas ≤3 Hari</div>
+    </div>
+    <div class="ringkasan-kotak">
+      <div class="angka">${mks.length}</div>
+      <div class="label">Mata Kuliah</div>
+    </div>
+  </div>`;
+
+  // Peringatan tugas mendekati deadline
+  if (segeraDeadline.length > 0) {
+    html += `<div class="kartu" style="border-left:4px solid var(--kuning); padding:10px 14px; margin-bottom:12px;">
+      <strong>⏰ Tugas mendekati deadline:</strong>
+      <ul style="margin:6px 0 0 16px; font-size:.83rem;">
+        ${segeraDeadline.map(f =>
+          `<li>${esc(f.judul)} <span class="teks-kecil">(${esc(f.mataKuliah)}, ${fmtTgl(f.deadline)})</span></li>`
+        ).join('')}
+      </ul>
+    </div>`;
+  }
+
+  // Tombol tambah file
+  html += `<button class="btn btn-primer btn-blok mb8" id="btn-buka-tambah">+ Tambah File</button>`;
+
+  // Daftar mata kuliah
+  if (mks.length === 0) {
+    html += `<div class="kosong-state">
+      <div class="ikon">📚</div>
+      <h3>Belum ada mata kuliah</h3>
+      <p>Tambahkan mata kuliah terlebih dahulu untuk mulai mencatat file.</p>
+    </div>`;
+  } else {
+    mks.forEach(mk => {
+      const jmlFile = file.filter(f => f.mataKuliah === mk).length;
+      const jmlTugas = file.filter(f => f.mataKuliah === mk && f.jenis === 'Tugas').length;
+      html += `<div class="kartu-mk" data-mk="${esc(mk)}" onclick="bukaDetailMK('${esc(mk).replace(/'/g,"\\'")}')">
+        <div>
+          <div class="mk-nama">${esc(mk)}</div>
+          <div class="mk-info">${jmlFile} file &nbsp;·&nbsp; ${jmlTugas} tugas</div>
+        </div>
+        <svg class="mk-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>`;
+    });
+  }
+
+  // Tombol tambah mata kuliah
+  html += `<button class="btn btn-sekund btn-blok mt8" id="btn-buka-modal-mk">+ Tambah Mata Kuliah</button>`;
+
+  el.innerHTML = html;
+
+  // Event listener tombol dalam beranda
+  document.getElementById('btn-buka-tambah').addEventListener('click', () => bukaFormTambah());
+  document.getElementById('btn-buka-modal-mk').addEventListener('click', () => bukaModalMK());
+}
+
+// ============================================================
+// DETAIL MATA KULIAH
+// ============================================================
+
+function bukaDetailMK(namaMK) {
+  mkDetailAktif = namaMK;
+  document.getElementById('judul-detail-mk').textContent = namaMK;
+
+  const file = ambilFile().filter(f => f.mataKuliah === namaMK);
+
+  // Kelompokkan per pertemuan
+  const perMap = {};
+  file.forEach(f => {
+    const p = f.pertemuan || 0;
+    if (!perMap[p]) perMap[p] = [];
+    perMap[p].push(f);
+  });
+
+  const perSorted = Object.keys(perMap).map(Number).sort((a, b) => a - b);
+
+  let html = '';
+
+  if (file.length === 0) {
+    html = `<div class="kosong-state">
+      <div class="ikon">📄</div>
+      <h3>Belum ada file</h3>
+      <p>Tambahkan file untuk mata kuliah ini.</p>
+      <button class="btn btn-primer mt8" onclick="bukaFormTambah('${esc(namaMK).replace(/'/g,"\\'")}')">+ Tambah File</button>
+    </div>`;
+  } else {
+    perSorted.forEach(p => {
+      html += `<div class="pertemuan-grup">
+        <div class="pertemuan-label">Pertemuan ${p}</div>
+        ${perMap[p].map(f => kartuFileHTML(f)).join('')}
+      </div>`;
+    });
+  }
+
+  document.getElementById('isi-detail-mk').innerHTML = html;
+
+  // Sembunyikan halaman lain, tampilkan detail
+  document.querySelectorAll('.halaman').forEach(h => h.classList.remove('aktif'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('aktif'));
+  document.getElementById('hal-detail-mk').classList.add('aktif');
+  halamanAktif = 'detail-mk';
+}
+
+document.getElementById('btn-kembali-mk').addEventListener('click', () => tampilHalaman('beranda'));
+
+// ============================================================
+// KARTU FILE (HTML generator)
+// ============================================================
+
+function kartuFileHTML(f) {
+  // Badge masalah
+  const judulSesuai = /^[A-Z0-9]+_[A-Za-z]+_P\d{2}_\d{4}-\d{2}-\d{2}$/.test(f.namaSaran || '');
+  const semuaFile = ambilFile();
+  const adaGanda  = semuaFile.filter(x => x.id !== f.id &&
+    x.mataKuliah === f.mataKuliah &&
+    x.judul.toLowerCase() === f.judul.toLowerCase()).length > 0;
+
+  let badges = '';
+  if (!f.link) badges += `<span class="badge badge-abu">Link kosong</span>`;
+  if (adaGanda) badges += `<span class="badge badge-kuning">Kemungkinan ganda</span>`;
+
+  // Cek apakah judul mengikuti pola standar
+  const polaNama = /^[A-Z0-9]+_(Tugas|Catatan|Slide)_P\d{2}_\d{4}-\d{2}-\d{2}$/;
+  if (!polaNama.test(f.judul)) badges += `<span class="badge badge-merah">Nama tidak sesuai aturan</span>`;
+
+  // Tag
+  const tags = f.tag ? f.tag.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const tagsHTML = tags.map(t => `<span class="tag">${esc(t)}</span>`).join('');
+
+  // Tombol buka link
+  let tombolLink = '';
+  const isURL = f.link && (f.link.startsWith('http://') || f.link.startsWith('https://'));
+  if (isURL) {
+    tombolLink = `<a href="${esc(f.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primer btn-kecil">🔗 Buka</a>`;
+  } else if (f.link) {
+    tombolLink = `<span class="teks-kecil" style="flex:1">📁 ${esc(f.link)}</span>
+      <button class="btn btn-sekund btn-kecil" onclick="editFile('${f.id}')">Perbarui link</button>`;
+  } else {
+    tombolLink = `<button class="btn btn-sekund btn-kecil" onclick="editFile('${f.id}')">Tambah link</button>`;
+  }
+
+  // Status badge warna
+  let statusStyle = '';
+  if (f.jenis === 'Tugas') {
+    if (f.status === 'Terkumpul') statusStyle = 'badge-hijau';
+    else if (f.status === 'Dikerjakan') statusStyle = 'badge-biru';
+    else statusStyle = 'badge-abu';
+  }
+
+  return `<div class="kartu-file" id="kartu-${f.id}">
+    <div class="kartu-file-header">
+      <div class="kartu-file-judul">${esc(f.judul)}</div>
+      <div>${badges}</div>
+    </div>
+    <div class="kartu-file-meta">
+      ${esc(f.mataKuliah)} &nbsp;·&nbsp; ${esc(f.jenis)} &nbsp;·&nbsp; P${String(f.pertemuan).padStart(2,'0')}
+      ${f.jenis === 'Tugas' ? `&nbsp;·&nbsp; <span class="badge ${statusStyle}">${esc(f.status)}</span>` : ''}
+      ${f.deadline ? `&nbsp;·&nbsp; 📅 ${fmtTgl(f.deadline)}` : ''}
+    </div>
+    ${tagsHTML ? `<div style="margin-top:6px">${tagsHTML}</div>` : ''}
+    <div class="kartu-file-aksi">
+      ${tombolLink}
+      <button class="btn btn-sekund btn-kecil" onclick="editFile('${f.id}')">✏️ Edit</button>
+      <button class="btn btn-bahaya btn-kecil" onclick="hapusFile('${f.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// FORM TAMBAH / EDIT FILE
+// ============================================================
+
+let idSedangDiedit = null; // null = mode tambah, string = mode edit
+
+/** Buka form tambah, opsional pre-fill mata kuliah */
+function bukaFormTambah(preMK) {
+  idSedangDiedit = null;
+  document.getElementById('judul-form-tambah').textContent = 'Tambah File';
+  resetForm();
+  isiDropdownMK();
+  if (preMK) {
+    document.getElementById('f-mk').value = preMK;
+  }
+  // Set tanggal default hari ini
+  document.getElementById('f-tanggal').value = hariIni();
+
+  document.querySelectorAll('.halaman').forEach(h => h.classList.remove('aktif'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('aktif'));
+  document.getElementById('hal-tambah').classList.add('aktif');
+  halamanAktif = 'tambah';
+  window.scrollTo(0, 0);
+}
+
+/** Buka form edit dengan data file yang ada */
+function editFile(id) {
+  const file = ambilFile().find(f => f.id === id);
+  if (!file) return;
+
+  idSedangDiedit = id;
+  document.getElementById('judul-form-tambah').textContent = 'Edit File';
+  resetForm();
+  isiDropdownMK();
+
+  // Isi nilai form
+  document.getElementById('f-judul').value      = file.judul      || '';
+  document.getElementById('f-mk').value         = file.mataKuliah || '';
+  document.getElementById('f-jenis').value      = file.jenis      || '';
+  document.getElementById('f-pertemuan').value  = file.pertemuan  || '';
+  document.getElementById('f-tanggal').value    = file.tanggal    || '';
+  document.getElementById('f-deadline').value   = file.deadline   || '';
+  document.getElementById('f-status').value     = file.status     || 'Belum dikerjakan';
+  document.getElementById('f-tag').value        = file.tag        || '';
+  document.getElementById('f-link').value       = file.link       || '';
+
+  // Tampilkan/sembunyikan field Tugas
+  toggleFieldTugas(file.jenis === 'Tugas');
+  updateSaranNama();
+  cekWarningLink();
+
+  document.querySelectorAll('.halaman').forEach(h => h.classList.remove('aktif'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('aktif'));
+  document.getElementById('hal-tambah').classList.add('aktif');
+  halamanAktif = 'tambah';
+  window.scrollTo(0, 0);
+}
+
+/** Reset semua field form dan error */
+function resetForm() {
+  ['f-judul','f-mk','f-jenis','f-pertemuan','f-tanggal','f-deadline','f-status','f-tag','f-link'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  ['err-judul','err-mk','err-jenis','err-pertemuan'].forEach(id => {
+    document.getElementById(id).classList.remove('tampil');
+  });
+  document.getElementById('kotak-saran').classList.remove('tampil');
+  document.getElementById('warning-link').classList.remove('tampil');
+  toggleFieldTugas(false);
+}
+
+/** Isi dropdown mata kuliah di form */
+function isiDropdownMK() {
+  const mks = ambilMK();
+  const sel = document.getElementById('f-mk');
+  // Kosongkan & tambahkan opsi default
+  sel.innerHTML = '<option value="">-- Pilih Mata Kuliah --</option>';
+  mks.forEach(mk => {
+    const opt = document.createElement('option');
+    opt.value = mk;
+    opt.textContent = mk;
+    sel.appendChild(opt);
+  });
+}
+
+/** Tampilkan/sembunyikan field khusus Tugas */
+function toggleFieldTugas(tampil) {
+  document.getElementById('grup-deadline').style.display = tampil ? '' : 'none';
+  document.getElementById('grup-status').style.display   = tampil ? '' : 'none';
+}
+
+// Event: perubahan jenis
+document.getElementById('f-jenis').addEventListener('change', function() {
+  toggleFieldTugas(this.value === 'Tugas');
+  updateSaranNama();
+});
+
+// Event: input yang mempengaruhi saran nama
+['f-mk','f-jenis','f-pertemuan','f-tanggal'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateSaranNama);
+  document.getElementById(id).addEventListener('input', updateSaranNama);
+});
+
+// Event: peringatan link
+document.getElementById('f-link').addEventListener('input', cekWarningLink);
+
+/** Buat singkatan dari nama mata kuliah
+ * - Jika lebih dari satu kata: ambil huruf pertama setiap kata, kapitalkan
+ * - Jika satu kata: ambil 3-4 huruf pertama, kapitalkan
+ */
+function buatSingkatan(namaMK) {
+  if (!namaMK) return '';
+  const kata = namaMK.trim().split(/\s+/);
+  if (kata.length === 1) {
+    return kata[0].slice(0, 4).toUpperCase();
+  }
+  return kata.map(k => k[0]).join('').toUpperCase();
+}
+
+/** Update tampilan saran nama file secara real-time */
+function updateSaranNama() {
+  const mk      = document.getElementById('f-mk').value;
+  const jenis   = document.getElementById('f-jenis').value;
+  const per     = document.getElementById('f-pertemuan').value;
+  const tgl     = document.getElementById('f-tanggal').value || hariIni();
+
+  const kotakSaran = document.getElementById('kotak-saran');
+
+  if (!mk || !jenis || !per) {
+    kotakSaran.classList.remove('tampil');
+    return;
+  }
+
+  const singkat = buatSingkatan(mk);
+  const pNN     = 'P' + String(per).padStart(2, '0');
+  const saran   = `${singkat}_${jenis}_${pNN}_${tgl}`;
+
+  document.getElementById('teks-saran-nama').textContent = saran;
+  kotakSaran.classList.add('tampil');
+}
+
+/** Cek apakah link adalah URL; jika bukan tampilkan peringatan */
+function cekWarningLink() {
+  const link = document.getElementById('f-link').value.trim();
+  const warn = document.getElementById('warning-link');
+  if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
+    warn.classList.add('tampil');
+  } else {
+    warn.classList.remove('tampil');
+  }
+}
+
+// Tombol salin nama saran
+document.getElementById('btn-salin-nama').addEventListener('click', () => {
+  const teks = document.getElementById('teks-saran-nama').textContent;
+  if (!teks) return;
+  navigator.clipboard.writeText(teks).then(() => {
+    const btn = document.getElementById('btn-salin-nama');
+    btn.textContent = '✅ Disalin!';
+    setTimeout(() => { btn.textContent = '📋 Salin nama'; }, 1500);
+  }).catch(() => {
+    // Fallback untuk browser lama
+    const ta = document.createElement('textarea');
+    ta.value = teks;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('btn-salin-nama');
+    btn.textContent = '✅ Disalin!';
+    setTimeout(() => { btn.textContent = '📋 Salin nama'; }, 1500);
+  });
+});
+
+// Tombol kembali dari form tambah
+document.getElementById('btn-kembali-tambah').addEventListener('click', () => {
+  if (halamanAktif === 'tambah') {
+    // Kembali ke halaman sebelumnya yang masuk akal
+    tampilHalaman('beranda');
+  }
+});
+
+// Tombol simpan file
+document.getElementById('btn-simpan-file').addEventListener('click', simpanFileHandler);
+
+/** Validasi dan simpan file */
+function simpanFileHandler() {
+  // --- VALIDASI ---
+  let valid = true;
+
+  const judul     = document.getElementById('f-judul').value.trim();
+  const mk        = document.getElementById('f-mk').value;
+  const jenis     = document.getElementById('f-jenis').value;
+  const pertemuan = parseInt(document.getElementById('f-pertemuan').value, 10);
+  const tanggal   = document.getElementById('f-tanggal').value;
+  const deadline  = document.getElementById('f-deadline').value;
+  const status    = document.getElementById('f-status').value;
+  const tag       = document.getElementById('f-tag').value.trim();
+  const link      = document.getElementById('f-link').value.trim();
+
+  // Reset pesan error
+  ['err-judul','err-mk','err-jenis','err-pertemuan'].forEach(id =>
+    document.getElementById(id).classList.remove('tampil')
+  );
+
+  if (!judul) {
+    document.getElementById('err-judul').classList.add('tampil'); valid = false;
+  }
+  if (!mk) {
+    document.getElementById('err-mk').classList.add('tampil'); valid = false;
+  }
+  if (!jenis) {
+    document.getElementById('err-jenis').classList.add('tampil'); valid = false;
+  }
+  if (!pertemuan || pertemuan < 1 || pertemuan > 16) {
+    document.getElementById('err-pertemuan').classList.add('tampil'); valid = false;
+  }
+
+  if (!valid) return;
+
+  // --- DETEKSI FILE GANDA ---
+  const semuaFile = ambilFile();
+  const adaGanda  = semuaFile.some(f =>
+    f.id !== idSedangDiedit &&
+    f.mataKuliah === mk &&
+    f.judul.toLowerCase() === judul.toLowerCase()
+  );
+
+  if (adaGanda) {
+    // Tampilkan modal konfirmasi ganda
+    tampilModalKonfirm(
+      'File Kemungkinan Sudah Ada',
+      `Sudah ada file dengan judul "${judul}" pada mata kuliah yang sama. Tetap simpan?`,
+      () => lanjutSimpanFile(judul, mk, jenis, pertemuan, tanggal, deadline, status, tag, link),
+      'Tetap Simpan'
+    );
+    return;
+  }
+
+  lanjutSimpanFile(judul, mk, jenis, pertemuan, tanggal, deadline, status, tag, link);
+}
+
+/** Eksekusi penyimpanan file setelah validasi lolos */
+function lanjutSimpanFile(judul, mk, jenis, pertemuan, tanggal, deadline, status, tag, link) {
+  const semuaFile = ambilFile();
+  const mks = ambilMK();
+
+  // Hitung saran nama untuk disimpan
+  const singkat  = buatSingkatan(mk);
+  const pNN      = 'P' + String(pertemuan).padStart(2, '0');
+  const tgl      = tanggal || hariIni();
+  const namaSaran = `${singkat}_${jenis}_${pNN}_${tgl}`;
+
+  if (idSedangDiedit) {
+    // Mode edit: perbarui objek yang ada
+    const idx = semuaFile.findIndex(f => f.id === idSedangDiedit);
+    if (idx !== -1) {
+      semuaFile[idx] = {
+        ...semuaFile[idx],
+        judul, mataKuliah: mk, jenis, pertemuan, tanggal,
+        deadline: jenis === 'Tugas' ? deadline : '',
+        status:   jenis === 'Tugas' ? status   : '',
+        tag, link, namaSaran
+      };
+    }
+  } else {
+    // Mode tambah: buat objek baru
+    semuaFile.push({
+      id: buatId(),
+      judul, mataKuliah: mk, jenis, pertemuan, tanggal,
+      deadline: jenis === 'Tugas' ? deadline : '',
+      status:   jenis === 'Tugas' ? status   : 'Belum dikerjakan',
+      tag, link, namaSaran
+    });
+  }
+
+  simpanFile(semuaFile);
+
+  // Kembali ke beranda setelah simpan
+  tampilHalaman('beranda');
+}
+
+// ============================================================
+// HAPUS FILE
+// ============================================================
+
+function hapusFile(id) {
+  const file = ambilFile().find(f => f.id === id);
+  if (!file) return;
+  tampilModalKonfirm(
+    'Hapus File',
+    `Hapus file "${file.judul}"? Tindakan ini tidak bisa dibatalkan.`,
+    () => {
+      simpanFile(ambilFile().filter(f => f.id !== id));
+      // Re-render halaman aktif
+      if (halamanAktif === 'beranda')   renderBeranda();
+      if (halamanAktif === 'cari')      renderCari();
+      if (halamanAktif === 'detail-mk') bukaDetailMK(mkDetailAktif);
+      if (halamanAktif === 'tugas')     renderTugas();
+    },
+    'Hapus'
+  );
+}
+
+// ============================================================
+// CARI & FILTER
+// ============================================================
+
+function renderCari() {
+  isiFilterDropdown();
+  terapkanFilter();
+}
+
+/** Isi dropdown filter dengan data terkini */
+function isiFilterDropdown() {
+  const mks  = ambilMK();
+  const file = ambilFile();
+
+  // Filter MK
+  const selMK = document.getElementById('fil-mk');
+  const nilaiMK = selMK.value;
+  selMK.innerHTML = '<option value="">Semua MK</option>';
+  mks.forEach(mk => {
+    const opt = document.createElement('option');
+    opt.value = mk; opt.textContent = mk;
+    if (mk === nilaiMK) opt.selected = true;
+    selMK.appendChild(opt);
+  });
+
+  // Filter Pertemuan
+  const selPer = document.getElementById('fil-pertemuan');
+  const nilaiPer = selPer.value;
+  selPer.innerHTML = '<option value="">Semua Pertemuan</option>';
+  const perList = [...new Set(file.map(f => f.pertemuan).filter(Boolean))].sort((a,b)=>a-b);
+  perList.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p; opt.textContent = `Pertemuan ${p}`;
+    if (String(p) === nilaiPer) opt.selected = true;
+    selPer.appendChild(opt);
+  });
+}
+
+/** Terapkan filter dan tampilkan hasil */
+function terapkanFilter() {
+  const q     = document.getElementById('inp-cari').value.toLowerCase();
+  const mk    = document.getElementById('fil-mk').value;
+  const jenis = document.getElementById('fil-jenis').value;
+  const per   = document.getElementById('fil-pertemuan').value;
+  const stat  = document.getElementById('fil-status').value;
+
+  let file = ambilFile();
+
+  // Filter pencarian teks: judul, tag, nama MK
+  if (q) {
+    file = file.filter(f =>
+      f.judul.toLowerCase().includes(q) ||
+      (f.tag || '').toLowerCase().includes(q) ||
+      f.mataKuliah.toLowerCase().includes(q)
+    );
+  }
+  if (mk)    file = file.filter(f => f.mataKuliah === mk);
+  if (jenis) file = file.filter(f => f.jenis === jenis);
+  if (per)   file = file.filter(f => String(f.pertemuan) === per);
+  if (stat)  file = file.filter(f => f.status === stat);
+
+  const el = document.getElementById('hasil-cari');
+
+  if (file.length === 0) {
+    el.innerHTML = `<div class="kosong-state">
+      <div class="ikon">🔍</div>
+      <h3>Tidak ada file ditemukan</h3>
+      <p>Coba ubah filter atau periksa penamaan.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = file.map(f => kartuFileHTML(f)).join('');
+}
+
+// Pasang event listener filter
+['inp-cari','fil-mk','fil-jenis','fil-pertemuan','fil-status'].forEach(id => {
+  document.getElementById(id).addEventListener('input', terapkanFilter);
+  document.getElementById(id).addEventListener('change', terapkanFilter);
+});
+
+document.getElementById('btn-reset-filter').addEventListener('click', () => {
+  document.getElementById('inp-cari').value   = '';
+  document.getElementById('fil-mk').value     = '';
+  document.getElementById('fil-jenis').value  = '';
+  document.getElementById('fil-pertemuan').value = '';
+  document.getElementById('fil-status').value = '';
+  terapkanFilter();
+});
+
+// ============================================================
+// STATUS TUGAS
+// ============================================================
+
+function renderTugas() {
+  const sekarang = new Date();
+  const batas3   = new Date(sekarang.getTime() + 3 * 86400000);
+
+  const tugas = ambilFile()
+    .filter(f => f.jenis === 'Tugas')
+    .sort((a, b) => {
+      // Urutkan: belum terkumpul dulu, lalu berdasarkan deadline
+      if (a.status === 'Terkumpul' && b.status !== 'Terkumpul') return 1;
+      if (a.status !== 'Terkumpul' && b.status === 'Terkumpul') return -1;
+      if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
+      if (a.deadline) return -1;
+      if (b.deadline) return 1;
+      return 0;
+    });
+
+  const el = document.getElementById('isi-tugas');
+
+  if (tugas.length === 0) {
+    el.innerHTML = `<div class="kosong-state">
+      <div class="ikon">✅</div>
+      <h3>Belum ada tugas</h3>
+      <p>Tambahkan file berjenis "Tugas" untuk melihat status di sini.</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  tugas.forEach(f => {
+    // Tentukan warna penanda berdasarkan deadline
+    let penanda = '';
+    if (f.deadline && f.status !== 'Terkumpul') {
+      const dl = new Date(f.deadline);
+      if (dl < sekarang) {
+        penanda = 'border-left:4px solid var(--merah)';
+      } else if (dl <= batas3) {
+        penanda = 'border-left:4px solid var(--kuning)';
+      }
+    }
+
+    html += `<div class="kartu" style="${penanda}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <div>
+          <strong>${esc(f.judul)}</strong>
+          <div class="teks-kecil">${esc(f.mataKuliah)} · P${String(f.pertemuan).padStart(2,'0')}
+            ${f.deadline ? ` · 📅 ${fmtTgl(f.deadline)}` : ''}
+          </div>
+        </div>
+        <select class="status-select" data-id="${f.id}" onchange="ubahStatus(this)">
+          <option value="Belum dikerjakan" ${f.status==='Belum dikerjakan'?'selected':''}>Belum</option>
+          <option value="Dikerjakan"       ${f.status==='Dikerjakan'      ?'selected':''}>Dikerjakan</option>
+          <option value="Terkumpul"        ${f.status==='Terkumpul'       ?'selected':''}>Terkumpul</option>
+        </select>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+/** Ubah status tugas langsung dari daftar */
+function ubahStatus(selectEl) {
+  const id         = selectEl.dataset.id;
+  const statusBaru = selectEl.value;
+  const semuaFile  = ambilFile();
+  const idx        = semuaFile.findIndex(f => f.id === id);
+  if (idx !== -1) {
+    semuaFile[idx].status = statusBaru;
+    simpanFile(semuaFile);
+  }
+}
+
+// ============================================================
+// REKAP
+// ============================================================
+
+function renderRekap() {
+  const file  = ambilFile();
+  const mks   = ambilMK();
+  const el    = document.getElementById('isi-rekap');
+
+  if (file.length === 0) {
+    el.innerHTML = `<div class="kosong-state">
+      <div class="ikon">📊</div>
+      <h3>Belum ada data</h3>
+      <p>Tambahkan file untuk melihat rekap.</p>
+    </div>`;
+    return;
+  }
+
+  // Hitung per MK
+  const perMK = {};
+  mks.forEach(mk => { perMK[mk] = 0; });
+  file.forEach(f => { if (perMK[f.mataKuliah] !== undefined) perMK[f.mataKuliah]++; });
+
+  const maks = Math.max(...Object.values(perMK), 1);
+
+  // Grafik batang CSS
+  let grafikHTML = '';
+  mks.forEach(mk => {
+    const jml   = perMK[mk] || 0;
+    const persen = Math.round((jml / maks) * 100);
+    grafikHTML += `<div class="grafik-baris">
+      <div class="grafik-label" title="${esc(mk)}">${esc(mk)}</div>
+      <div class="grafik-bar-bg">
+        <div class="grafik-bar-isi" style="width:${persen}%"></div>
+      </div>
+      <div class="grafik-angka">${jml}</div>
+    </div>`;
+  });
+
+  // Statistik tugas
+  const tugas         = file.filter(f => f.jenis === 'Tugas');
+  const terkumpul     = tugas.filter(f => f.status === 'Terkumpul').length;
+  const pctTerkumpul  = tugas.length ? Math.round((terkumpul / tugas.length) * 100) : 0;
+
+  // File bermasalah
+  const linkKosong = file.filter(f => !f.link).length;
+  const polaNama   = /^[A-Z0-9]+_(Tugas|Catatan|Slide)_P\d{2}_\d{4}-\d{2}-\d{2}$/;
+  const namaAneh   = file.filter(f => !polaNama.test(f.judul)).length;
+
+  // Deteksi ganda: judul+MK sama
+  const dupSet = new Set();
+  const dupCount = file.filter(f => {
+    const kunci = (f.mataKuliah + '|' + f.judul).toLowerCase();
+    if (dupSet.has(kunci)) return true;
+    dupSet.add(kunci);
+    return false;
+  }).length;
+
+  let html = `
+  <div class="kartu">
+    <div class="seksi-judul">File per Mata Kuliah</div>
+    ${grafikHTML || '<p class="teks-kecil">Belum ada mata kuliah.</p>'}
+  </div>
+
+  <div class="kartu mt12">
+    <div class="seksi-judul">Statistik Tugas</div>
+    <div class="ringkasan-baris">
+      <div class="ringkasan-kotak">
+        <div class="angka">${tugas.length}</div>
+        <div class="label">Total Tugas</div>
+      </div>
+      <div class="ringkasan-kotak">
+        <div class="angka">${terkumpul}</div>
+        <div class="label">Terkumpul</div>
+      </div>
+      <div class="ringkasan-kotak">
+        <div class="angka">${pctTerkumpul}%</div>
+        <div class="label">% Terkumpul</div>
+      </div>
+    </div>
+    <!-- Bar progres persentase tugas terkumpul -->
+    <div class="grafik-bar-bg" style="height:18px; border-radius:9px; margin-top:6px;">
+      <div class="grafik-bar-isi" style="width:${pctTerkumpul}%; height:100%;"></div>
+    </div>
+    <div class="teks-kecil mt8" style="text-align:right">${pctTerkumpul}% selesai</div>
+  </div>
+
+  <div class="kartu mt12">
+    <div class="seksi-judul">File Bermasalah</div>
+    <div class="ringkasan-baris">
+      <div class="ringkasan-kotak">
+        <div class="angka" style="color:var(--merah)">${namaAneh}</div>
+        <div class="label">Nama tidak standar</div>
+      </div>
+      <div class="ringkasan-kotak">
+        <div class="angka" style="color:var(--kuning)">${dupCount}</div>
+        <div class="label">Kemungkinan ganda</div>
+      </div>
+      <div class="ringkasan-kotak">
+        <div class="angka" style="color:var(--teks-muted)">${linkKosong}</div>
+        <div class="label">Link kosong</div>
+      </div>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ============================================================
+// MODAL UMUM
+// ============================================================
+
+let callbackModalOk = null;
+
+/** Tampilkan modal konfirmasi generik */
+function tampilModalKonfirm(judul, pesan, callbackOk, labelOk = 'Lanjutkan') {
+  document.getElementById('modal-konfirm-judul').textContent = judul;
+  document.getElementById('modal-konfirm-pesan').textContent = pesan;
+  document.getElementById('btn-modal-ok').textContent = labelOk;
+  callbackModalOk = callbackOk;
+  document.getElementById('modal-konfirm').classList.add('tampil');
+}
+
+document.getElementById('btn-modal-batal').addEventListener('click', () => {
+  document.getElementById('modal-konfirm').classList.remove('tampil');
+  callbackModalOk = null;
+});
+
+document.getElementById('btn-modal-ok').addEventListener('click', () => {
+  document.getElementById('modal-konfirm').classList.remove('tampil');
+  if (callbackModalOk) callbackModalOk();
+  callbackModalOk = null;
+});
+
+// ============================================================
+// MODAL TAMBAH MATA KULIAH
+// ============================================================
+
+function bukaModalMK() {
+  document.getElementById('inp-nama-mk').value = '';
+  document.getElementById('err-tambah-mk').classList.remove('tampil');
+  document.getElementById('modal-tambah-mk').classList.add('tampil');
+  setTimeout(() => document.getElementById('inp-nama-mk').focus(), 100);
+}
+
+document.getElementById('btn-batal-mk').addEventListener('click', () => {
+  document.getElementById('modal-tambah-mk').classList.remove('tampil');
+});
+
+document.getElementById('btn-konfirm-mk').addEventListener('click', () => {
+  const nama = document.getElementById('inp-nama-mk').value.trim();
+  if (!nama) {
+    document.getElementById('err-tambah-mk').classList.add('tampil');
+    return;
+  }
+  const mks = ambilMK();
+  // Cegah duplikat (case-insensitive)
+  if (mks.some(m => m.toLowerCase() === nama.toLowerCase())) {
+    document.getElementById('err-tambah-mk').textContent = 'Mata kuliah sudah ada.';
+    document.getElementById('err-tambah-mk').classList.add('tampil');
+    return;
+  }
+  document.getElementById('err-tambah-mk').textContent = 'Nama mata kuliah tidak boleh kosong.';
+  mks.push(nama);
+  simpanMK(mks);
+  document.getElementById('modal-tambah-mk').classList.remove('tampil');
+  renderBeranda();
+});
+
+// Enter di input MK = konfirm
+document.getElementById('inp-nama-mk').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-konfirm-mk').click();
+});
+
+// ============================================================
+// KELOLA DATA: EKSPOR / IMPOR / HAPUS / CONTOH
+// ============================================================
+
+/** Ekspor data sebagai file JSON */
+document.getElementById('btn-ekspor-json').addEventListener('click', () => {
+  const data = {
+    versi: 1,
+    tanggalEkspor: new Date().toISOString(),
+    mataKuliah: ambilMK(),
+    file: ambilFile()
+  };
+  unduhFile(JSON.stringify(data, null, 2), 'arsipkuliah_backup.json', 'application/json');
+});
+
+/** Ekspor data sebagai CSV */
+document.getElementById('btn-ekspor-csv').addEventListener('click', () => {
+  const file = ambilFile();
+  if (file.length === 0) { alert('Tidak ada data untuk diekspor.'); return; }
+
+  const kolom = ['id','judul','mataKuliah','jenis','pertemuan','tanggal','deadline','status','tag','link','namaSaran'];
+  const baris = [kolom.join(',')];
+
+  file.forEach(f => {
+    baris.push(kolom.map(k => {
+      const val = String(f[k] || '').replace(/"/g, '""');
+      return `"${val}"`;
+    }).join(','));
+  });
+
+  unduhFile(baris.join('\n'), 'arsipkuliah_data.csv', 'text/csv;charset=utf-8;');
+});
+
+/** Trigger input file impor */
+document.getElementById('btn-impor-json').addEventListener('click', () => {
+  document.getElementById('inp-impor').click();
+});
+
+/** Proses file JSON yang diimpor */
+document.getElementById('inp-impor').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.file || !Array.isArray(data.file)) throw new Error('Format tidak valid');
+
+      // Gabungkan mata kuliah tanpa duplikat
+      const mkLama  = ambilMK();
+      const mkBaru  = data.mataKuliah || [];
+      const mkGabung = [...new Set([...mkLama, ...mkBaru])];
+
+      // Gabungkan file tanpa duplikat ID
+      const fileLama  = ambilFile();
+      const idLama    = new Set(fileLama.map(f => f.id));
+      const fileBaru  = data.file.filter(f => !idLama.has(f.id));
+
+      simpanMK(mkGabung);
+      simpanFile([...fileLama, ...fileBaru]);
+
+      alert(`✅ Impor berhasil: ${fileBaru.length} file baru ditambahkan.`);
+      renderBeranda();
+    } catch (err) {
+      alert('Gagal mengimpor: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  this.value = ''; // Reset agar bisa impor ulang file yang sama
+});
+
+/** Hapus semua data dengan konfirmasi ganda */
+document.getElementById('btn-hapus-semua').addEventListener('click', () => {
+  tampilModalKonfirm(
+    'Hapus Semua Data',
+    'Semua file dan mata kuliah akan dihapus permanen. Pastikan sudah backup. Lanjutkan?',
+    () => {
+      tampilModalKonfirm(
+        'Konfirmasi Akhir',
+        'Ini konfirmasi kedua. Data TIDAK BISA dipulihkan setelah dihapus. Yakin?',
+        () => {
+          simpanFile([]);
+          simpanMK([]);
+          alert('Semua data telah dihapus.');
+          renderBeranda();
+        },
+        'Ya, Hapus Semua'
+      );
+    },
+    'Lanjutkan'
+  );
+});
+
+/** Isi data contoh fiktif */
+document.getElementById('btn-isi-contoh').addEventListener('click', () => {
+  const mkContoh = [
+    'Pemrograman Berorientasi Objek',
+    'Basis Data',
+    'Kalkulus',
+    'Jaringan Komputer',
+    'Sistem Operasi'
+  ];
+
+  const fileContoh = [
+    { judul:'PBO_Tugas_P01_2025-02-10', mataKuliah:'Pemrograman Berorientasi Objek', jenis:'Tugas',    pertemuan:1,  tanggal:'2025-02-10', deadline:'2025-02-17', status:'Terkumpul',        tag:'java,oop',        link:'https://classroom.google.com/c/contoh' },
+    { judul:'PBO_Catatan_P02_2025-02-17', mataKuliah:'Pemrograman Berorientasi Objek', jenis:'Catatan', pertemuan:2,  tanggal:'2025-02-17', deadline:'',           status:'',                 tag:'inheritance',     link:'Laptop > Kuliah > PBO' },
+    { judul:'PBO_Slide_P03_2025-02-24', mataKuliah:'Pemrograman Berorientasi Objek', jenis:'Slide',   pertemuan:3,  tanggal:'2025-02-24', deadline:'',           status:'',                 tag:'polimorfisme',    link:'' },
+    { judul:'BD_Tugas_P01_2025-02-12', mataKuliah:'Basis Data',                     jenis:'Tugas',    pertemuan:1,  tanggal:'2025-02-12', deadline:'2025-02-20', status:'Dikerjakan',      tag:'sql,er-diagram',  link:'https://drive.google.com/contoh' },
+    { judul:'BD_Catatan_P02_2025-02-19', mataKuliah:'Basis Data',                     jenis:'Catatan', pertemuan:2,  tanggal:'2025-02-19', deadline:'',           status:'',                 tag:'normalisasi',     link:'https://drive.google.com/contoh2' },
+    { judul:'Kalk_Tugas_P01_2025-02-11', mataKuliah:'Kalkulus',                      jenis:'Tugas',    pertemuan:1,  tanggal:'2025-02-11', deadline:'2025-02-18', status:'Belum dikerjakan', tag:'limit,integral',  link:'' },
+    { judul:'JarKom_Slide_P01_2025-02-13', mataKuliah:'Jaringan Komputer',            jenis:'Slide',   pertemuan:1,  tanggal:'2025-02-13', deadline:'',           status:'',                 tag:'tcp-ip,osi',      link:'https://drive.google.com/contoh3' },
+    { judul:'JarKom_Tugas_P02_2025-02-20', mataKuliah:'Jaringan Komputer',            jenis:'Tugas',   pertemuan:2,  tanggal:'2025-02-20', deadline:'2025-02-27', status:'Terkumpul',        tag:'subnetting',      link:'https://classroom.google.com/contoh2' },
+    { judul:'SistOp_Catatan_P01_2025-02-14', mataKuliah:'Sistem Operasi',             jenis:'Catatan', pertemuan:1,  tanggal:'2025-02-14', deadline:'',           status:'',                 tag:'proses,thread',   link:'Laptop > Kuliah > SO' },
+    { judul:'SistOp_Tugas_P03_2025-03-07', mataKuliah:'Sistem Operasi',             jenis:'Tugas',   pertemuan:3,  tanggal:'2025-03-07', deadline:'2025-03-14', status:'Belum dikerjakan', tag:'scheduling,cpu',  link:'' },
+  ];
+
+  // Tambahkan MK yang belum ada
+  const mkLama   = ambilMK();
+  const mkGabung = [...new Set([...mkLama, ...mkContoh])];
+  simpanMK(mkGabung);
+
+  // Tambahkan file dengan ID baru
+  const fileLama = ambilFile();
+  const fileBaru = fileContoh.map(f => ({
+    ...f,
+    id: buatId(),
+    namaSaran: f.judul
+  }));
+  simpanFile([...fileLama, ...fileBaru]);
+
+  alert(`✅ ${fileBaru.length} file contoh ditambahkan.`);
+  renderBeranda();
+});
+
+// ============================================================
+// UTILITAS UNDUH FILE
+// ============================================================
+
+/** Buat dan klik link unduh secara programatik */
+function unduhFile(konten, namaFile, tipe) {
+  const blob   = new Blob([konten], { type: tipe });
+  const url    = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href  = url;
+  anchor.download = namaFile;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ============================================================
+// INISIALISASI
+// ============================================================
+
+/** Jalankan saat aplikasi pertama dimuat */
+function init() {
+  // Tampilkan tanggal singkat di header
+  document.getElementById('versi-tgl').textContent = new Date().toLocaleDateString('id-ID', {
+    day:'numeric', month:'short', year:'numeric'
+  });
+
+  // Render halaman awal
+  renderBeranda();
+}
+
+init();
+</script>
+</body>
+</html>
