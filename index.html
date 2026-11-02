@@ -588,11 +588,13 @@ const esc = s => s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const today = () => new Date().toISOString().slice(0,10);
 const fmtDate = s => { if(!s) return '-'; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; };
+// Singkatan MK — HARUS didefinisikan sebelum qaSave memanggilnya
+function abbr(n) { if(!n) return ''; const w=n.trim().split(/\s+/); return w.length===1?w[0].slice(0,4).toUpperCase():w.map(x=>x[0]).join('').toUpperCase(); }
 
-// classList helpers — SATU-SATUNYA cara toggle visibility
-const clsAdd = (id, c='on') => $(id).classList.add(c);
-const clsRem = (id, c='on') => $(id).classList.remove(c);
-const clsTog = (id, v, c='on') => $(id).classList.toggle(c, v);
+// classList helpers — aman: selalu cek null dulu
+function clsAdd(id, c='on') { const e=$(id); if(e) e.classList.add(c); }
+function clsRem(id, c='on') { const e=$(id); if(e) e.classList.remove(c); }
+function clsTog(id, v, c='on') { const e=$(id); if(e) e.classList.toggle(c, v); }
 
 // localStorage wrapper
 const LS = {
@@ -611,10 +613,6 @@ function toast(msg, type='', ms=2700) {
 
 // ─── DARK MODE ────────────────────────────────────────────────
 const K_TH = 'ak4_th';
-(function() {
-  const t = LS.get(K_TH) || (matchMedia('(prefers-color-scheme:dark)').matches ? 'd' : 'l');
-  applyTheme(t, false);
-})();
 function applyTheme(t, show=true) {
   t === 'd'
     ? document.documentElement.setAttribute('dark', '')
@@ -623,6 +621,10 @@ function applyTheme(t, show=true) {
   LS.set(K_TH, t);
   if (show) toast(t === 'd' ? '🌙 Mode gelap' : '☀️ Mode terang');
 }
+(function() {
+  const t = LS.get(K_TH) || (matchMedia('(prefers-color-scheme:dark)').matches ? 'd' : 'l');
+  applyTheme(t, false);
+})();
 $('btn-dark').addEventListener('click', () =>
   applyTheme(document.documentElement.hasAttribute('dark') ? 'l' : 'd')
 );
@@ -974,7 +976,7 @@ function renderRecap() {
 
 // ─── FORM LENGKAP ─────────────────────────────────────────────
 let editId = null;
-const abbr = n => { if(!n) return ''; const w=n.trim().split(/\s+/); return w.length===1?w[0].slice(0,4).toUpperCase():w.map(x=>x[0]).join('').toUpperCase(); };
+// abbr sudah didefinisikan di atas (baris awal) agar tersedia untuk qaSave
 const resJn = () => { const v=$('f-jn').value; return v==='Lainnya'?($('f-jn-x').value.trim()||'Lainnya'):v; };
 const togDL = t => { $('g-dl').style.display=t?'':'none'; $('g-st').style.display=t?'':'none'; };
 
@@ -1030,12 +1032,43 @@ function fmtSz(b) { if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFi
 
 function doUpload(file) {
   const sz = fmtSz(file.size);
-  const val = `[File Lokal] ${file.name} · ${sz} · ${file.type||'?'}`;
-  // Cek duplikat: cari file lain yang sudah menyimpan nama file yang sama
-  const dup = gF().find(f => f.id !== editId && typeof f.link === 'string' && f.link.includes(`[File Lokal] ${file.name}`));
-  clsTog('dupw', !!dup);
-  if (dup) $('dupmsg').innerHTML = `File <strong>${esc(file.name)}</strong> sudah pernah dicatat sebagai <em>${esc(dup.judul)}</em> (${esc(dup.mataKuliah)}). Pastikan ini bukan duplikat.`;
-  else $('dupmsg').textContent = '';
+  // Sertakan ukuran mentah (bytes) untuk pencocokan presisi
+  const val = `[File Lokal] ${file.name} · ${sz} · ${file.type||'?'} · ${file.size}B`;
+
+  // Cek duplikat: pisahkan kecocokan tepat (nama + ukuran) vs. longgar (nama saja)
+  const all = gF();
+  const exactDups = all.filter(f =>
+    f.id !== editId &&
+    typeof f.link === 'string' &&
+    f.link.includes(`[File Lokal] ${file.name}`) &&
+    f.link.includes(` · ${file.size}B`)
+  );
+  const softDups = !exactDups.length
+    ? all.filter(f =>
+        f.id !== editId &&
+        typeof f.link === 'string' &&
+        f.link.includes(`[File Lokal] ${file.name}`) &&
+        !f.link.includes(` · ${file.size}B`)
+      )
+    : [];
+
+  const hasDup = exactDups.length > 0 || softDups.length > 0;
+  clsTog('dupw', hasDup);
+
+  if (exactDups.length > 0) {
+    const list = exactDups.map(f =>
+      `<li><strong>${esc(f.judul)}</strong> — ${esc(f.mataKuliah)}, ${esc(f.jenis||'-')}, Pert.${f.pertemuan||'-'}</li>`
+    ).join('');
+    $('dupmsg').innerHTML = `File <strong>${esc(file.name)}</strong> (${sz}) sudah pernah dicatat di ${exactDups.length} catatan berikut:<ul style="margin:4px 0 0 16px;padding:0">${list}</ul>Pastikan ini bukan duplikat.`;
+  } else if (softDups.length > 0) {
+    const list = softDups.map(f =>
+      `<li><strong>${esc(f.judul)}</strong> — ${esc(f.mataKuliah)}, ${esc(f.jenis||'-')}, Pert.${f.pertemuan||'-'}</li>`
+    ).join('');
+    $('dupmsg').innerHTML = `Nama file <strong>${esc(file.name)}</strong> sudah ditemukan di ${softDups.length} catatan (ukuran berbeda — kemungkinan versi lain):<ul style="margin:4px 0 0 16px;padding:0">${list}</ul>`;
+  } else {
+    $('dupmsg').textContent = '';
+  }
+
   const nm = $('upname'); nm.textContent = `📄 ${file.name} (${sz})`; nm.dataset.v = val;
   clsAdd('updn'); $('upzone').style.display = 'none';
 }
@@ -1120,7 +1153,7 @@ function _save(jd, mk, jn, pr, tg, dl, st, tag, ct, lk) {
       deadline: isTg?dl:'', status: isTg?st:'', tag, catatan:ct, link:lk, namaSaran:ns };
   } else {
     all.push({ id:uid(), judul:jd, mataKuliah:mk, jenis:jn, pertemuan:pr, tanggal:tg,
-      deadline: isTg?dl:'', status: isTg?st:'Belum dikerjakan':'', tag, catatan:ct, link:lk, namaSaran:ns });
+      deadline: isTg?dl:'', status: isTg?st:'Belum dikerjakan', tag, catatan:ct, link:lk, namaSaran:ns });
   }
   sF(all); toast(editId ? `✅ "${jd}" diperbarui` : `✅ "${jd}" tersimpan`, 's');
   updBadge(); goPg('home');
