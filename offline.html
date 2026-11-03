@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ArsipKuliah — Offline</title>
+<style>
+:root{--p:#7c3aed;--ink:#0f172a;--muted:#64748b;--bg:#f1f5f9;--sur:#ffffff;--bdr:#e2e8f0}
+[dark]{--ink:#f1f5f9;--muted:#94a3b8;--bg:#0f1117;--sur:#1e2030;--bdr:#2d3148}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:24px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:20px;padding:40px 32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.icon{width:72px;height:72px;border-radius:16px;background:var(--p);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:2rem}
+h1{font-size:1.25rem;font-weight:900;margin-bottom:8px}
+p{color:var(--muted);font-size:.9rem;line-height:1.6;margin-bottom:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--p);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none;transition:.15s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.hint{margin-top:20px;font-size:.78rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">📂</div>
+  <h1>Kamu sedang offline</h1>
+  <p>
+    Tidak ada koneksi internet saat ini.<br>
+    Data arsip kamu tetap aman — tersimpan di perangkat ini.<br>
+    Sambungkan kembali ke internet untuk memuat aplikasi.
+  </p>
+  <a href="./" class="btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+    Coba Lagi
+  </a>
+  <div class="hint">💡 Jika sudah terhubung, halaman mungkin perlu di-refresh sekali.</div>
+</div>
+
+<script>
+  // Terapkan tema gelap sesuai preferensi yang tersimpan
+  try {
+    const th = JSON.parse(localStorage.getItem('ak4_th'));
+    if (th === 'd') document.documentElement.setAttribute('dark', '');
+  } catch(e) {}
+
+  // Auto-reload saat koneksi kembali
+  window.addEventListener('online', () => {
+    window.location.href = './';
+  });
+</script>
+</body>
+</html>
