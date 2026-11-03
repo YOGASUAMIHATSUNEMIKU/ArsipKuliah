@@ -7,7 +7,7 @@
  *  - Update: saat SW baru tersedia, langsung aktif (skipWaiting + clients.claim)
  */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE   = `ak-shell-${CACHE_VERSION}`;
 const OFFLINE_URL   = './offline.html';
 
